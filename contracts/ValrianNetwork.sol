@@ -22,8 +22,6 @@ contract ValyrianNetwork is ERC20, Ownable, ReentrancyGuard {
     uint256 public lastBurnTime;
     address public lastBurner;
 
-    uint256 currentSupply = totalSupply();
-
     event EthReceived(address indexed _sender, uint256 _ethAmountSent);
     event TokenBurned(uint256 _amount);
     event LastBurner(address _burnerAddress);
@@ -41,7 +39,12 @@ contract ValyrianNetwork is ERC20, Ownable, ReentrancyGuard {
     /// Ensures sufficient token balance in the contract before transferring tokens to the buyer.
     receive() external payable nonReentrant {
         require(msg.value > 0, "Must send ETH to receive tokens");
-        uint256 tokensToTransfer = (msg.value * ETH_TO_TOKEN_RATE) / 1 ether;
+
+        uint256 tokensToTransfer;
+        unchecked {
+            tokensToTransfer = (msg.value * ETH_TO_TOKEN_RATE) / 1 ether;
+        }
+
         require(
             balanceOf(address(this)) >= tokensToTransfer,
             "Not enough tokens left in contract"
@@ -59,12 +62,15 @@ contract ValyrianNetwork is ERC20, Ownable, ReentrancyGuard {
             "Burn not yet allowed"
         );
 
-        require(currentSupply > TARGET_SUPPLY, "Burn target already reached");
+        uint256 supply = totalSupply();
+        require(totalSupply() > TARGET_SUPPLY, "Burn target already reached");
 
         uint256 burnAmount = BURN_PERCENTAGE_SCALED;
 
-        if (currentSupply - burnAmount < TARGET_SUPPLY) {
-            burnAmount = currentSupply - TARGET_SUPPLY;
+        unchecked {
+            if (supply - burnAmount < TARGET_SUPPLY) {
+                burnAmount = supply - TARGET_SUPPLY;
+            }
         }
 
         _burn(address(this), burnAmount);
@@ -73,7 +79,7 @@ contract ValyrianNetwork is ERC20, Ownable, ReentrancyGuard {
         // for triggering the burn
         require(
             balanceOf(address(this)) > REWARDS_GIVEN_TO_BURNER,
-            "Rewards has been maxxed out"
+            "Budget for rewards has been maxed out"
         );
         _transfer(address(this), msg.sender, REWARDS_GIVEN_TO_BURNER);
 
@@ -87,7 +93,9 @@ contract ValyrianNetwork is ERC20, Ownable, ReentrancyGuard {
     /// @notice Allows the contract owner to withdraw all ETH held by the contract.
     /// @dev Only callable by the contract owner.
     function withdrawETH() external onlyOwner {
-        payable(owner()).transfer(address(this).balance);
-        emit EthWithdrawal(msg.sender, address(this).balance);
+        uint256 currentBalance = address(this).balance;
+
+        payable(owner()).transfer(currentBalance);
+        emit EthWithdrawal(msg.sender, currentBalance);
     }
 }
