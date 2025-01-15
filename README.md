@@ -1,13 +1,19 @@
-# Sample Hardhat Project
+# Valyrian Network Token 🔥
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+Smart contract repo for $VLNT token 📜
 
-Try running some of the following tasks:
+## Token Address (Base mainnet)
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
-```
+🌐⛓️ https://basescan.org/address/0xc0cd130390f376ed0c7e01643f55b6665248f0de
+
+## License
+
+MIT
+
+## Contact
+
+📧 koleen.bp@outlook.com
+
+🌐 https://www.koleenbp.com
+
+🕸️ https://linktr.ee/koleenbp
